@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// TODO: Crea dos macros con el tamaño horizontal y vertical del mundo
+#define W_SIZE_X 10
+#define W_SIZE_Y 10
 
-void world_init(/* Recibo un mundo */);
+void world_init(bool world[W_SIZE_X][W_SIZE_Y]);
 void world_print(/* Recibo un mundo */);
 void world_step(/* Recibo dos mundos */);
 int world_count_neighbors(/* Recibo un mundo y unas coordenadas */);
@@ -26,15 +27,28 @@ int main()
 	return EXIT_SUCCESS;
 }
 
-void world_init(/* Recibo un mundo */)
+void world_init(bool world[W_SIZE_X][W_SIZE_Y])
 {
-	// TODO: Poner el mundo a false
+	int i, j;
 
-	/* TODO: Inicializar con el patrón del glider:
+	// Poner el mundo a false
+	for(i = 0; i < W_SIZE_X; i++) {
+		for(j = 0; j < W_SIZE_Y; j++) {
+			world[i][j] = false;
+		}
+	}
+
+	/* Inicializar con el patrón del glider:
 	 *           . # .
 	 *           . . #
 	 *           # # #
 	 */
+	 
+	world[0][1] = true;
+	world[1][2] = true;
+	world[2][0] = true;
+	world[2][1] = true;
+	world[2][2] = true;
 }
 
 void world_print(/* Recibo un mundo */)
