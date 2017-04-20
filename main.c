@@ -8,7 +8,7 @@
 void world_init(bool world[W_SIZE_X][W_SIZE_Y]);
 void world_print(bool world[W_SIZE_X][W_SIZE_Y]);
 void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y]);
-int world_count_neighbors(/* Recibo un mundo y unas coordenadas */);
+int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy);
 bool world_get_cell(/* Recibo un mundo y unas coordenadas */);
 void world_copy(/* Recibo dos mundos */);
 
@@ -18,7 +18,7 @@ int main()
 	// TODO: Declara dos mundos
 
 	// TODO: inicializa el mundo
-	
+		
 	do {
 		printf("\033cIteration %d\n", i++);
 		// TODO: Imprime el mundo
@@ -94,9 +94,40 @@ void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y
 	world_copy(world, worldAux);
 }
 
-int world_count_neighbors(/* Recibo un mundo y unas coordenadas */)
+int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy)
 {
-	// Devuelve el número de vecinos
+
+	int i, j, x, y;
+	int counter = 0;
+	
+	// Recorremos todas las células que rodean las coordenadas i, j
+	for (i = coordx-1; i <= coordx+1; i++) {
+		for (j = coordy-1; j <= coordy+1; j++) {
+		
+			x = i;
+			y = j;	
+			
+			if (i < 0) { // El índice se sale por arriba
+				x = i + W_SIZE_X;
+			} else if (i > 4) { // El índice se sale por abajo
+				x = i - W_SIZE_X;
+			}
+			
+			if (j < 0) { // El índice se sale por la izquierda
+				y = j + W_SIZE_Y;
+			} else if (j > 4) { // El índice se sale por la derecha
+				y = j - W_SIZE_Y;
+			}
+			
+			// La célula central no se cuenta. Además solo se cuentan células si están vivas
+			if(!(x==coordx && y==coordy) && world[x][y]) {
+				printf("-");
+				counter++;
+			}
+		}
+	}
+	
+	return counter;
 }
 
 bool world_get_cell(/* Recibo un mundo y unas coordenadas */)
