@@ -7,7 +7,7 @@
 
 void world_init(bool world[W_SIZE_X][W_SIZE_Y]);
 void world_print(bool world[W_SIZE_X][W_SIZE_Y]);
-void world_step(/* Recibo dos mundos */);
+void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y]);
 int world_count_neighbors(/* Recibo un mundo y unas coordenadas */);
 bool world_get_cell(/* Recibo un mundo y unas coordenadas */);
 void world_copy(/* Recibo dos mundos */);
@@ -78,18 +78,20 @@ void world_print(bool world[W_SIZE_X][W_SIZE_Y])
 	 }
 }
 
-void world_step(/* Recibo dos mundos */)
-{
-	/*
-	 * TODO:
-	 * - Recorrer el mundo célula por célula comprobando si nace, sobrevive
-	 *   o muere.
-	 *
-	 * - No se puede cambiar el estado del mundo a la vez que se recorre:
-	 *   Usar un mundo auxiliar para guardar el siguiente estado.
-	 *
-	 * - Copiar el mundo auxiliar sobre el mundo principal
-	 */
+void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y])
+{	 
+	int i, j;	
+	
+	//Recorrer el mundo célula por célula
+	for (i = 0; i < W_SIZE_X; i++) {
+		for (j = 0; j < W_SIZE_Y; j++) {
+			//Va copiando el siguiente estado de cada célula en worldAux
+			worldAux[i][j] = world_get_cell(world, i, j);
+		}
+	}
+	
+	//Copia worldAux en world
+	world_copy(world, worldAux);
 }
 
 int world_count_neighbors(/* Recibo un mundo y unas coordenadas */)
