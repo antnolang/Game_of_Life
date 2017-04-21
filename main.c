@@ -110,19 +110,18 @@ int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy
 			
 			if (i < 0) { // El índice se sale por arriba
 				x = i + W_SIZE_X;
-			} else if (i > 4) { // El índice se sale por abajo
+			} else if (i > W_SIZE_X - 1) { // El índice se sale por abajo
 				x = i - W_SIZE_X;
 			}
 			
 			if (j < 0) { // El índice se sale por la izquierda
 				y = j + W_SIZE_Y;
-			} else if (j > 4) { // El índice se sale por la derecha
+			} else if (j > W_SIZE_Y - 1) { // El índice se sale por la derecha
 				y = j - W_SIZE_Y;
 			}
 			
 			// La célula central no se cuenta. Además solo se cuentan células si están vivas
 			if(!(x==coordx && y==coordy) && world[x][y]) {
-				printf("-");
 				counter++;
 			}
 		}
