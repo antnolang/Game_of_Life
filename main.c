@@ -10,7 +10,7 @@ void world_print(bool world[W_SIZE_X][W_SIZE_Y]);
 void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y]);
 int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy);
 bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy);
-void world_copy(/* Recibo dos mundos */);
+void world_copy(bool wordTarget[W_SIZE_X][W_SIZE_Y], bool worldSource[W_SIZE_X][W_SIZE_Y]);
 
 int main()
 {
@@ -145,7 +145,14 @@ bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy)
 	}
 }
 
-void world_copy(/* Recibo dos mundos */)
+void world_copy(bool wordTarget[W_SIZE_X][W_SIZE_Y], bool worldSource[W_SIZE_X][W_SIZE_Y])
 {
-	// TODO: copia el mundo segundo mundo sobre el primero
+	int i, j;
+
+	// Copia el mundo segundo mundo sobre el primero
+	for (i = 0; i < W_SIZE_X; i++) {
+		for (j = 0; j < W_SIZE_Y; j++) {
+			wordTarget[i][j] = worldSource[i][j];
+		}
+	}
 }
