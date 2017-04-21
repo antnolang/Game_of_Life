@@ -9,7 +9,7 @@ void world_init(bool world[W_SIZE_X][W_SIZE_Y]);
 void world_print(bool world[W_SIZE_X][W_SIZE_Y]);
 void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y]);
 int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy);
-bool world_get_cell(/* Recibo un mundo y unas coordenadas */);
+bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy);
 void world_copy(/* Recibo dos mundos */);
 
 int main()
@@ -130,12 +130,19 @@ int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy
 	return counter;
 }
 
-bool world_get_cell(/* Recibo un mundo y unas coordenadas */)
+bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy)
 {
-	/*
-	 * TODO: Devuelve el estado de la célula de posición indicada
-	 * (¡cuidado con los límites del array!)
-	 */
+
+	bool res;
+	
+	// Devuelve el estado de la célula de posición indicada
+	if (!world[coordx][coordy] && world_count_neighbors(world, coordx, coordy) == 3) {
+		res = true;
+	} else if (world[coordx][coordy] && (world_count_neighbors(world, coordx, coordy) == 2 || world_count_neighbors(world, coordx, coordy) == 3)) {
+		res = true;
+	} else {
+		res = false;
+	}
 }
 
 void world_copy(/* Recibo dos mundos */)
