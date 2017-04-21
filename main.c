@@ -15,14 +15,15 @@ void world_copy(bool wordTarget[W_SIZE_X][W_SIZE_Y], bool worldSource[W_SIZE_X][
 int main()
 {
 	int i = 0;
-	// TODO: Declara dos mundos
-
-	// TODO: inicializa el mundo
+	bool world[W_SIZE_X][W_SIZE_Y];
+	bool worldAux[W_SIZE_X][W_SIZE_Y];
+	
+	world_init(world);
 		
 	do {
 		printf("\033cIteration %d\n", i++);
-		// TODO: Imprime el mundo
-		// TODO: Itera
+		world_print(world);
+		world_step(world, worldAux);
 	} while (getchar() != 'q');
 
 	return EXIT_SUCCESS;
