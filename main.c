@@ -143,6 +143,8 @@ bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy)
 	} else {
 		res = false;
 	}
+	
+	return res;
 }
 
 void world_copy(bool wordTarget[W_SIZE_X][W_SIZE_Y], bool worldSource[W_SIZE_X][W_SIZE_Y])
