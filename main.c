@@ -33,7 +33,6 @@ void world_init(bool world[W_SIZE_X][W_SIZE_Y])
 {
 	int i, j;
 
-	// Poner el mundo a false
 	for(i = 0; i < W_SIZE_X; i++) {
 		for(j = 0; j < W_SIZE_Y; j++) {
 			world[i][j] = false;
@@ -55,20 +54,6 @@ void world_init(bool world[W_SIZE_X][W_SIZE_Y])
 
 void world_print(bool world[W_SIZE_X][W_SIZE_Y])
 {
-	// Imprimir el mundo por consola. Sugerencia:
-	/*
-	 *     . # . . . . . . . .
-	 *     . . # . . . . . . .
-	 *     # # # . . . . . . .
-	 *     . . . . . . . . . .
-	 *     . . . . . . . . . .
-	 *     . . . . . . . . . .
-	 *     . . . . . . . . . .
-	 *     . . . . . . . . . .
-	 *     . . . . . . . . . .
-	 *     . . . . . . . . . .
-	 */
-	 
 	 int i, j;
 	 
 	 for(i = 0; i < W_SIZE_X; i++) {
@@ -81,77 +66,66 @@ void world_print(bool world[W_SIZE_X][W_SIZE_Y])
 
 void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y])
 {	 
-	int i, j;	
+	int i, j;
+	bool next_state;	
 	
-	//Recorrer el mundo célula por célula
 	for (i = 0; i < W_SIZE_X; i++) {
 		for (j = 0; j < W_SIZE_Y; j++) {
-			//Va copiando el siguiente estado de cada célula en worldAux
-			worldAux[i][j] = world_get_cell(world, i, j);
+			
+			next_state = world[i][j];
+			
+			if (world[i][j] == false && world_count_neighbors(world, i, j) == 3) {
+				next_state = true;
+			} else if (world[i][j] == true && !(world_count_neighbors(world, i, j) == 2 || world_count_neighbors(world, i, j) == 3)) {
+				next_state = false;
+			}
+			
+			worldAux[i][j] = next_state;
 		}
 	}
 	
-	//Copia worldAux en world
 	world_copy(world, worldAux);
 }
 
 int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy)
 {
 
-	int i, j, x, y;
 	int counter = 0;
 	
-	// Recorremos todas las células que rodean las coordenadas i, j
-	for (i = coordx-1; i <= coordx+1; i++) {
-		for (j = coordy-1; j <= coordy+1; j++) {
-		
-			x = i;
-			y = j;	
-			
-			if (i < 0) { // El índice se sale por arriba
-				x = i + W_SIZE_X;
-			} else if (i > W_SIZE_X - 1) { // El índice se sale por abajo
-				x = i - W_SIZE_X;
-			}
-			
-			if (j < 0) { // El índice se sale por la izquierda
-				y = j + W_SIZE_Y;
-			} else if (j > W_SIZE_Y - 1) { // El índice se sale por la derecha
-				y = j - W_SIZE_Y;
-			}
-			
-			// La célula central no se cuenta. Además solo se cuentan células si están vivas
-			if(!(x==coordx && y==coordy) && world[x][y]) {
-				counter++;
-			}
-		}
-	}
+	counter += world_get_cell(world, coordx - 1, coordy - 1);
+	counter += world_get_cell(world, coordx - 1, coordy	 );
+	counter += world_get_cell(world, coordx - 1, coordy + 1);
+	counter += world_get_cell(world, coordx	 , coordy - 1);
+	counter += world_get_cell(world, coordx	 , coordy + 1);
+	counter += world_get_cell(world, coordx + 1, coordy - 1);
+	counter += world_get_cell(world, coordx + 1, coordy	 );
+	counter += world_get_cell(world, coordx + 1, coordy + 1);
 	
 	return counter;
 }
 
 bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy)
 {
-
-	bool res;
-	
-	// Devuelve el estado de la célula de posición indicada
-	if (!world[coordx][coordy] && world_count_neighbors(world, coordx, coordy) == 3) {
-		res = true;
-	} else if (world[coordx][coordy] && (world_count_neighbors(world, coordx, coordy) == 2 || world_count_neighbors(world, coordx, coordy) == 3)) {
-		res = true;
-	} else {
-		res = false;
+	// Lógica de límites
+	if (coordx < 0) {
+		coordx += W_SIZE_X;
+	} else if (coordx > W_SIZE_X - 1) {
+		coordx -= W_SIZE_X;
 	}
 	
-	return res;
+	if (coordy < 0) {
+		coordy += W_SIZE_Y;
+	} else if (coordy > W_SIZE_Y - 1) {
+		coordy -= W_SIZE_Y;
+	}
+	
+	return world[coordx][coordy];
 }
 
 void world_copy(bool wordTarget[W_SIZE_X][W_SIZE_Y], bool worldSource[W_SIZE_X][W_SIZE_Y])
 {
 	int i, j;
 
-	// Copia el mundo segundo mundo sobre el primero
 	for (i = 0; i < W_SIZE_X; i++) {
 		for (j = 0; j < W_SIZE_Y; j++) {
 			wordTarget[i][j] = worldSource[i][j];
