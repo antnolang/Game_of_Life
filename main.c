@@ -29,21 +29,19 @@ int main()
 	return EXIT_SUCCESS;
 }
 
+/* Inicializa el mundo con el patrón del glider:
+ *           . # .
+ *           . . #
+ *           # # #
+ */
+
 void world_init(bool world[W_SIZE_X][W_SIZE_Y])
 {
 	int i, j;
 
-	for(i = 0; i < W_SIZE_X; i++) {
-		for(j = 0; j < W_SIZE_Y; j++) {
+	for(i = 0; i < W_SIZE_X; i++) 
+		for(j = 0; j < W_SIZE_Y; j++) 
 			world[i][j] = false;
-		}
-	}
-
-	/* Inicializar con el patrón del glider:
-	 *           . # .
-	 *           . . #
-	 *           # # #
-	 */
 	 
 	world[0][1] = true;
 	world[1][2] = true;
@@ -106,18 +104,15 @@ int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy
 
 bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy)
 {
-	// Lógica de límites
-	if (coordx < 0) {
+	if (coordx < 0)
 		coordx += W_SIZE_X;
-	} else if (coordx > W_SIZE_X - 1) {
+	else if (coordx > W_SIZE_X - 1)
 		coordx -= W_SIZE_X;
-	}
 	
-	if (coordy < 0) {
+	if (coordy < 0)
 		coordy += W_SIZE_Y;
-	} else if (coordy > W_SIZE_Y - 1) {
+	else if (coordy > W_SIZE_Y - 1)
 		coordy -= W_SIZE_Y;
-	}
 	
 	return world[coordx][coordy];
 }
@@ -126,9 +121,7 @@ void world_copy(bool wordTarget[W_SIZE_X][W_SIZE_Y], bool worldSource[W_SIZE_X][
 {
 	int i, j;
 
-	for (i = 0; i < W_SIZE_X; i++) {
-		for (j = 0; j < W_SIZE_Y; j++) {
+	for (i = 0; i < W_SIZE_X; i++)
+		for (j = 0; j < W_SIZE_Y; j++)
 			wordTarget[i][j] = worldSource[i][j];
-		}
-	}
 }
