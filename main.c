@@ -64,8 +64,7 @@ void world_print(bool world[W_SIZE_X][W_SIZE_Y])
 
 void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y])
 {	 
-	int i, j, neighbors;
-	bool next_state;	
+	int i, j, neighbors;	
 	
 	for (i = 0; i < W_SIZE_X; i++) {
 		for (j = 0; j < W_SIZE_Y; j++) {
