@@ -64,21 +64,13 @@ void world_print(bool world[W_SIZE_X][W_SIZE_Y])
 
 void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y])
 {	 
-	int i, j;
+	int i, j, neighbors;
 	bool next_state;	
 	
 	for (i = 0; i < W_SIZE_X; i++) {
 		for (j = 0; j < W_SIZE_Y; j++) {
-			
-			next_state = world[i][j];
-			
-			if (world[i][j] == false && world_count_neighbors(world, i, j) == 3) {
-				next_state = true;
-			} else if (world[i][j] == true && !(world_count_neighbors(world, i, j) == 2 || world_count_neighbors(world, i, j) == 3)) {
-				next_state = false;
-			}
-			
-			worldAux[i][j] = next_state;
+			neighbors = world_count_neighbors(world, i, j);
+			worldAux[i][j] = neighbors == 3 || (world[i][j] && neighbors == 2);
 		}
 	}
 	
