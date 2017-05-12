@@ -5,15 +5,14 @@
 int main()
 {
 	int i = 0;
-	bool world[W_SIZE_X][W_SIZE_Y];
-	bool worldAux[W_SIZE_X][W_SIZE_Y];
+	struct world w;
 	
-	world_init(world);
+	world_init(&w);
 		
 	do {
 		printf("\033cIteration %d\n", i++);
-		world_print(world);
-		world_step(world, worldAux);
+		world_print(&w);
+		world_step(&w);
 	} while (getchar() != 'q');
 
 	return EXIT_SUCCESS;

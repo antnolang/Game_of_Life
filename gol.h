@@ -11,11 +11,11 @@ struct world {
         bool aux[W_SIZE_X][W_SIZE_Y];
 };
 
-void world_init(bool world[W_SIZE_X][W_SIZE_Y]);
-void world_print(bool world[W_SIZE_X][W_SIZE_Y]);
-void world_step(bool world[W_SIZE_X][W_SIZE_Y], bool worldAux[W_SIZE_X][W_SIZE_Y]);
-int world_count_neighbors(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy);
-bool world_get_cell(bool world[W_SIZE_X][W_SIZE_Y], int coordx, int coordy);
-void world_copy(bool wordTarget[W_SIZE_X][W_SIZE_Y], bool worldSource[W_SIZE_X][W_SIZE_Y]);
+void world_init(struct world *w);
+void world_print(struct world *w);
+void world_step(struct world *w);
+int world_count_neighbors(struct world *w, int coordx, int coordy);
+bool world_get_cell(struct world *w, int coordx, int coordy);
+void world_copy(struct world *w);
 
 #endif
