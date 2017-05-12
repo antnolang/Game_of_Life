@@ -22,7 +22,7 @@ void world_init(struct world *w)
 	w->world[2][2] = true;
 }
 
-void world_print(struct world *w)
+void world_print(const struct world *w)
 {
 	 int i, j;
 	 
@@ -48,7 +48,7 @@ void world_step(struct world *w)
 	world_copy(w);
 }
 
-int world_count_neighbors(struct world *w, int coordx, int coordy)
+int world_count_neighbors(const struct world *w, int coordx, int coordy)
 {
 
 	int counter = 0;
@@ -65,7 +65,7 @@ int world_count_neighbors(struct world *w, int coordx, int coordy)
 	return counter;
 }
 
-bool world_get_cell(struct world *w, int coordx, int coordy)
+bool world_get_cell(const struct world *w, int coordx, int coordy)
 {
 	if (coordx < 0)
 		coordx += W_SIZE_X;

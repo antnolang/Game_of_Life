@@ -12,10 +12,10 @@ struct world {
 };
 
 void world_init(struct world *w);
-void world_print(struct world *w);
+void world_print(const struct world *w);
 void world_step(struct world *w);
-int world_count_neighbors(struct world *w, int coordx, int coordy);
-bool world_get_cell(struct world *w, int coordx, int coordy);
+int world_count_neighbors(const struct world *w, int coordx, int coordy);
+bool world_get_cell(const struct world *w, int coordx, int coordy);
 void world_copy(struct world *w);
 
 #endif
