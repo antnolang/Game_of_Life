@@ -146,11 +146,10 @@ bool get_cell(const struct world *w, int coordx, int coordy)
 
 void copy(struct world *w)
 {
-	int i, x, y;
+	int i;
+	bool *aux;
 	
-	x = w->size_x;
-	y = w->size_y;
-
-	for(i = 0; i < x*y; i++)
-		*(w->cells[0] + i) = *(w->cells[1] + i);
+	aux = w->cells[0];
+	w->cells[0] = w->cells[1];
+	w->cells[1] = aux;
 }
