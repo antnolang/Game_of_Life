@@ -1,102 +1,156 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "gol.h"
 
-#define W_SIZE_X 10
-#define W_SIZE_Y 10
-
 struct world {
-        bool world[W_SIZE_X][W_SIZE_Y];
-        bool aux[W_SIZE_X][W_SIZE_Y];
+	bool *cells[2];
+	int size_x;
+	int size_y;
 };
 
-static int world_count_neighbors(const struct world *w, int coordx, int coordy);
-static bool world_get_cell(const struct world *w, int coordx, int coordy);
-static void world_copy(struct world *w);
+static void init(struct world *w);
+static int count_neighbors(const struct world *w, int coordx, int coordy);
+static void fix_coords(const struct world *w, int *x, int *y);
+static bool get_cell(const struct world *w, int coordx, int coordy);
+static void copy(struct world *w);
 
-/* Inicializa el mundo con el patrón del glider:
- *           . # .
- *           . . #
- *           # # #
- */
-
-void world_init(struct world *w)
+struct world * world_alloc(int x, int y)
 {
-	int i, j;
+	struct world *w;
+	bool *mainWorld;
+	bool *auxWorld;
+	
+	w = (struct world *)malloc(sizeof(struct world));
+	if (!w)
+		return NULL;
+	
+	mainWorld = (bool *)malloc(x*y*sizeof(int));
+	if (!mainWorld) {
+		free(w);
+		return NULL;
+	}
+		
+	auxWorld = (bool *)malloc(x*y*sizeof(int));
+	if (!mainWorld) {
+		free(mainWorld);
+		free(w);
+		return NULL;
+	}
+	
+	w->cells[0] = mainWorld;
+	w->cells[1] = auxWorld;
+	w->size_x = x;
+	w->size_y = y;
+	
+	init(w);
+	
+	return w;	
+}
 
-	for(i = 0; i < W_SIZE_X; i++) 
-		for(j = 0; j < W_SIZE_Y; j++) 
-			w->world[i][j] = false;
+void world_free(struct world *w) 
+{
+	free(w->cells[0]);
+	free(w->cells[1]);
+	free(w);
+}
+
+void init(struct world *w)
+{
+	int i, x, y;
+	
+	x = w->size_x;
+	y = w->size_y;
+
+	for(i = 0; i < x*y; i++)
+		*(w->cells[0] + i) = false;
 	 
-	w->world[0][1] = true;
-	w->world[1][2] = true;
-	w->world[2][0] = true;
-	w->world[2][1] = true;
-	w->world[2][2] = true;
+	*(w->cells[0] + 1)	 = true;
+	*(w->cells[0] + y + 2)   = true;
+	*(w->cells[0] + 2*y)	 = true;
+	*(w->cells[0] + 2*y + 1) = true;
+	*(w->cells[0] + 2*y + 2) = true;
 }
 
 void world_print(const struct world *w)
 {
-	 int i, j;
+	int i, x, y;
 	 
-	 for(i = 0; i < W_SIZE_X; i++) {
-		for(j = 0; j < W_SIZE_Y; j++) {
-			w->world[i][j] ? printf("# ") : printf(". ");
+	x = w->size_x;
+	y = w->size_y;
+	 
+	for(i = 0; i < x*y; i++) {
+		if (i%y == 0) {
+			printf("\n");
 		}
-		printf("\n");
-	 }
+		*(w->cells[0] + i) ? printf("# ") : printf(". ");
+	}
+	printf("\n");
 }
 
-void world_step(struct world *w)
-{	 
-	int i, j, neighbors;
+void world_iterate(struct world *w)
+{	
+	int size_x = w->size_x;
+	int size_y = w->size_y;
+	int i, j, neighbors, offset;
 	
-	for (i = 0; i < W_SIZE_X; i++) {
-		for (j = 0; j < W_SIZE_Y; j++) {
-			neighbors = world_count_neighbors(w, i, j);
-			w->aux[i][j] = neighbors == 3 || (w->world[i][j] && neighbors == 2);
+	for (i = 0; i < size_x; i++) {
+		for (j = 0; j < size_y; j++) {
+			offset = w->size_y*i + j;
+			neighbors = count_neighbors(w, i, j);
+			*(w->cells[1] + offset) = neighbors == 3 || (*(w->cells[0] + offset) && neighbors == 2);
 		}
 	}
 	
-	world_copy(w);
+	copy(w);
 }
 
-int world_count_neighbors(const struct world *w, int coordx, int coordy)
+int count_neighbors(const struct world *w, int coordx, int coordy)
 {
-
 	int counter = 0;
 
-	counter += world_get_cell(w, coordx - 1, coordy - 1);
-	counter += world_get_cell(w, coordx - 1, coordy    );
-	counter += world_get_cell(w, coordx - 1, coordy + 1);
-	counter += world_get_cell(w, coordx    , coordy - 1);
-	counter += world_get_cell(w, coordx    , coordy + 1);
-	counter += world_get_cell(w, coordx + 1, coordy - 1);
-	counter += world_get_cell(w, coordx + 1, coordy    );
-	counter += world_get_cell(w, coordx + 1, coordy + 1);
+	counter += get_cell(w, coordx - 1, coordy - 1);
+	counter += get_cell(w, coordx - 1, coordy    );
+	counter += get_cell(w, coordx - 1, coordy + 1);
+	counter += get_cell(w, coordx    , coordy - 1);
+	counter += get_cell(w, coordx    , coordy + 1);
+	counter += get_cell(w, coordx + 1, coordy - 1);
+	counter += get_cell(w, coordx + 1, coordy    );
+	counter += get_cell(w, coordx + 1, coordy + 1);
 	
 	return counter;
 }
 
-bool world_get_cell(const struct world *w, int coordx, int coordy)
+void fix_coords(const struct world *w, int *x, int *y) 
 {
-	if (coordx < 0)
-		coordx += W_SIZE_X;
-	else if (coordx > W_SIZE_X - 1)
-		coordx -= W_SIZE_X;
+	int size_x = w->size_x;
+	int size_y = w->size_y;
+
+	if (*x < 0)
+		*x += size_x;
+	else if (*x > size_x - 1)
+		*x -= size_x;
 	
-	if (coordy < 0)
-		coordy += W_SIZE_Y;
-	else if (coordy > W_SIZE_Y - 1)
-		coordy -= W_SIZE_Y;
-	
-	return w->world[coordx][coordy];
+	if (*y < 0)
+		*y += size_y;
+	else if (*y > size_y - 1)
+		*y -= size_y;
 }
 
-void world_copy(struct world *w)
+bool get_cell(const struct world *w, int coordx, int coordy)
 {
-	int i, j;
+	fix_coords(w, &coordx, &coordy);
+	int offset = w->size_y*coordx + coordy;
+	
+	return *(w->cells[0] + offset);
+}
 
-	for (i = 0; i < W_SIZE_X; i++)
-		for (j = 0; j < W_SIZE_Y; j++)
-			w->world[i][j] = w->aux[i][j];
+void copy(struct world *w)
+{
+	int i, x, y;
+	
+	x = w->size_x;
+	y = w->size_y;
+
+	for(i = 0; i < x*y; i++)
+		*(w->cells[0] + i) = *(w->cells[1] + i);
 }

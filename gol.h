@@ -5,8 +5,10 @@
 
 struct world;
 
-void world_init(struct world *w);
+struct world *world_alloc(int size_x, int size_y);
+void world_free(struct world *w);
+
 void world_print(const struct world *w);
-void world_step(struct world *w);
+void world_iterate(struct world *w);
 
 #endif
