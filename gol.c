@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include "gol.h"
 
+#define W_SIZE_X 10
+#define W_SIZE_Y 10
+
+struct world {
+        bool world[W_SIZE_X][W_SIZE_Y];
+        bool aux[W_SIZE_X][W_SIZE_Y];
+};
+
+static int world_count_neighbors(const struct world *w, int coordx, int coordy);
+static bool world_get_cell(const struct world *w, int coordx, int coordy);
+static void world_copy(struct world *w);
+
 /* Inicializa el mundo con el patrón del glider:
  *           . # .
  *           . . #
