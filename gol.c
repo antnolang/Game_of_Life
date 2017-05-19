@@ -8,17 +8,17 @@ struct world {
 	int size_y;
 };
 
-static void init(struct world *w);
 static int count_neighbors(const struct world *w, int coordx, int coordy);
 static void fix_coords(const struct world *w, int *x, int *y);
 static bool get_cell(const struct world *w, int coordx, int coordy);
-static void copy(struct world *w);
+static void set_cell(struct world *w, int buf, int x, int y, bool val);
 
 struct world * world_alloc(int x, int y)
 {
 	struct world *w;
 	bool *mainWorld;
 	bool *auxWorld;
+	int i, j;
 	
 	w = (struct world *)malloc(sizeof(struct world));
 	if (!w)
@@ -42,7 +42,16 @@ struct world * world_alloc(int x, int y)
 	w->size_x = x;
 	w->size_y = y;
 	
-	init(w);
+	//Inicialización del mundo
+	for(i = 0; i < x; i++)
+		for (j = 0; j < y; j++)
+			set_cell(w, 0, i, j, false);
+	 
+	set_cell(w, 0, 0, 1, true);
+	set_cell(w, 0, 1, 2, true);
+	set_cell(w, 0, 2, 0, true);
+	set_cell(w, 0, 2, 1, true);
+	set_cell(w, 0, 2, 2, true);
 	
 	return w;	
 }
@@ -54,54 +63,42 @@ void world_free(struct world *w)
 	free(w);
 }
 
-void init(struct world *w)
-{
-	int i, x, y;
-	
-	x = w->size_x;
-	y = w->size_y;
-
-	for(i = 0; i < x*y; i++)
-		*(w->cells[0] + i) = false;
-	 
-	*(w->cells[0] + 1)	 = true;
-	*(w->cells[0] + y + 2)   = true;
-	*(w->cells[0] + 2*y)	 = true;
-	*(w->cells[0] + 2*y + 1) = true;
-	*(w->cells[0] + 2*y + 2) = true;
-}
-
 void world_print(const struct world *w)
 {
-	int i, x, y;
+	int i, j, x, y;
 	 
 	x = w->size_x;
 	y = w->size_y;
-	 
-	for(i = 0; i < x*y; i++) {
-		if (i%y == 0) {
-			printf("\n");
+	
+	for(i = 0; i < x; i++) {
+		for(j = 0; j < y; j++) {
+			get_cell(w, i, j) ? printf("# ") : printf(". ");
 		}
-		*(w->cells[0] + i) ? printf("# ") : printf(". ");
+		printf("\n");
 	}
-	printf("\n");
 }
 
 void world_iterate(struct world *w)
 {	
 	int size_x = w->size_x;
 	int size_y = w->size_y;
-	int i, j, neighbors, offset;
+	int i, j, neighbors;
+	bool next_cell;
+	bool *aux;
 	
 	for (i = 0; i < size_x; i++) {
 		for (j = 0; j < size_y; j++) {
-			offset = w->size_y*i + j;
 			neighbors = count_neighbors(w, i, j);
-			*(w->cells[1] + offset) = neighbors == 3 || (*(w->cells[0] + offset) && neighbors == 2);
+			next_cell = neighbors == 3 || 
+				    (get_cell(w, i, j) && neighbors == 2);
+			set_cell(w, 1, i, j, next_cell);
 		}
 	}
 	
-	copy(w);
+	//El mundo auxiliar pasa a ser el principal
+	aux = w->cells[0];
+	w->cells[0] = w->cells[1];
+	w->cells[1] = aux;
 }
 
 int count_neighbors(const struct world *w, int coordx, int coordy)
@@ -144,12 +141,9 @@ bool get_cell(const struct world *w, int coordx, int coordy)
 	return *(w->cells[0] + offset);
 }
 
-void copy(struct world *w)
+void set_cell(struct world *w, int buf, int x, int y, bool val)
 {
-	int i;
-	bool *aux;
-	
-	aux = w->cells[0];
-	w->cells[0] = w->cells[1];
-	w->cells[1] = aux;
+	int offset = w->size_y*x + y;
+
+	*(w->cells[buf] + offset) = val;
 }
