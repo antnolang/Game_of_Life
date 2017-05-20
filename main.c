@@ -13,7 +13,7 @@ int main()
 	w = world_alloc(W_SIZE_X, W_SIZE_Y);
 	if (!w) {
 		perror("Can't allocate world");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 		
 	do {
