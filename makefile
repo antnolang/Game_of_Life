@@ -4,9 +4,11 @@ CFLAGS = -Wall -Werror
 
 all: main
 
-valgrind: main.o gol.o
-	gcc -g main.o gol.o -o main
-	valgrind --leak-check=full ./main
+valgrind: main_debug
+	valgrind --leak-check=full ./main_debug
+
+main_debug: main.o gol.o
+	gcc -g main.o gol.o -o main_debug
 
 main: main.o gol.o
 	gcc main.o gol.o -o main
