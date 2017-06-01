@@ -5,6 +5,7 @@
 #include <string.h>
 #include <getopt.h>
 
+#define LINE_LEN 256
 
 static const char *init_mode_str[] = {
 	[CFG_DEFAULT] = "default",
@@ -23,19 +24,21 @@ static const struct option long_options[] =
 
 static bool check_config(const struct config *config);
 static enum cfg_init_mode str2init_mode(const char *opt);
+static bool load_config(struct config *config);
 
 int config_parse_argv(struct config *config, int argc, char *argv[])
 {
 	int option_index = 0;
 	int c;
-	bool check_flags = true;
+	bool check_options = true;
 	
 	// Default values
 	config->show_help = false;
 	config->size_x = 10;
 	config->size_y = 10;
 	config->init_mode = CFG_DEFAULT;
-
+	config->cfg_file = "\0";
+	
 	while ((c = getopt_long(argc, argv, "hx:y:i:", long_options,
 				&option_index)) != -1) {
 		switch (c) {
@@ -52,7 +55,7 @@ int config_parse_argv(struct config *config, int argc, char *argv[])
 			config->init_mode = str2init_mode(optarg);
 			break;
 		case '?':
-			check_flags = false;
+			check_options = false;
 			break;
 		default:
 			printf("\nERROR\n");
@@ -60,11 +63,19 @@ int config_parse_argv(struct config *config, int argc, char *argv[])
  		}
 	}
 	
-	int i;
-	for (i = optind; i < argc; i++)
-		printf("Argumento desconocido: \"%s\"\n", argv[i]);
+	if (optind != argc) {
+		if (optind == argc - 1) {
+			config->cfg_file = argv[optind];
+			optind++;
+			if (!load_config(config)) {
+				check_options = false;
+			}
+		} else {
+			check_options = false;
+		}
+	}
 
-	return check_flags && check_config(config);
+	return check_options && check_config(config);
 }
 
 static bool check_config(const struct config *config)
@@ -91,6 +102,57 @@ static enum cfg_init_mode str2init_mode(const char *opt)
 	return i == CFG_N_INIT_MODES ? CFG_NOT_DEF : i;
 }
 
+static bool load_config(struct config *config)
+{
+	char file_name[LINE_LEN];
+	strcpy(file_name, config->cfg_file);
+	
+	FILE *f = fopen(file_name, "r");
+	if (!f) {
+		perror("Error opening config file");
+		exit(EXIT_FAILURE);
+	}
+	
+	char line1[LINE_LEN];
+	fgets(line1, LINE_LEN, f);
+	if (ferror(f)) {
+		perror("Error reading config file");
+		fclose(f);
+		return false;
+	}
+	if (strchr(line1, '\n') != NULL) {
+		*strchr(line1, '\n') = '\0';
+	}
+	config->size_x = strtol(line1, NULL, 0);
+	
+	char line2[LINE_LEN];
+	fgets(line2, LINE_LEN, f);
+	if (ferror(f)) {
+		perror("Error reading config file");
+		fclose(f);
+		return false;
+	}
+	if (strchr(line2, '\n') != NULL) {
+		*strchr(line2, '\n') = '\0';
+	}
+	config->size_y = strtol(line2, NULL, 0);
+	
+	char line3[LINE_LEN];
+	fgets(line3, LINE_LEN, f);
+	if (ferror(f)) {
+		perror("Error reading config file");
+		fclose(f);
+		return false;
+	}
+	if (strchr(line3, '\n') != NULL) {
+		*strchr(line3, '\n') = '\0';
+	}
+	config->init_mode = str2init_mode(line3);
+	
+	fclose(f);
+	return true;
+}
+
 void config_print_usage(const char *arg0)
 {
 	printf("Usage: %s\n"
@@ -98,13 +160,16 @@ void config_print_usage(const char *arg0)
 		"\t[-x|--size_x <num>]\n"
 		"\t[-y|--size_y <num>]\n"
 		"\t[-i|--init <init_mode>]\n"
+		"\t[<config_file.txt>]\n"
 		, arg0);
 
 	printf("\ninitialization modes: \n");
 	
 	int i;
 	for (i = 0; i < CFG_N_INIT_MODES; i++)
-		printf("- %s\n", init_mode_str[i]);
+		printf("\t%s\n", init_mode_str[i]);
+		
+	printf("\nData from the config file has preference over flags.\n\n");
 }
 
 void config_print(const struct config *config)
@@ -115,5 +180,6 @@ void config_print(const struct config *config)
 	printf("\tsize_y    = %d\n", config->size_y);
 	printf("\tinit_mode = %d(%s)\n",
 		config->init_mode, init_mode_str[config->init_mode]);
+	printf("\tcfg_file  = %s\n", config->cfg_file);
 	printf("}\n");
 }

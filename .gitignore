@@ -3,3 +3,5 @@ main_debug
 notes
 main.o
 gol.o
+config.txt
+config.o

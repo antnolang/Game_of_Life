@@ -17,6 +17,7 @@ struct config {
 	int size_x;
 	int size_y;
 	enum cfg_init_mode init_mode;
+	char *cfg_file;
 };
 
 int config_parse_argv(struct config *config, int argc, char *argv[]);
