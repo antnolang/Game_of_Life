@@ -1,16 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "gol.h"
+#include "config.h"
 
-#define W_SIZE_X 10
-#define W_SIZE_Y 10
-
-int main()
+int main(int argc, char *argv[])
 {
 	int i = 0;
 	struct world *w;
+	struct config config;
 	
-	w = world_alloc(W_SIZE_X, W_SIZE_Y);
+	if (!config_parse_argv(&config, argc, argv)) {
+		printf("\nERROR: configuration is not valid.\n\n");
+		config_print_usage(argv[0]);
+		return EXIT_FAILURE;
+	} else if (config.show_help) {
+		config_print_usage(argv[0]);
+		return EXIT_SUCCESS;
+	}
+	
+	w = world_alloc(&config);
 	if (!w) {
 		perror("Can't allocate world");
 		return EXIT_FAILURE;

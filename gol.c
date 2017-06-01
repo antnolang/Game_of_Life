@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
 #include "gol.h"
+#include "config.h"
 
 struct world {
 	bool *cells[2];
@@ -13,12 +16,14 @@ static void fix_coords(const struct world *w, int *x, int *y);
 static bool get_cell(const struct world *w, int coordx, int coordy);
 static void set_cell(struct world *w, int buf, int x, int y, bool val);
 
-struct world * world_alloc(int x, int y)
+struct world * world_alloc(const struct config *config)
 {
 	struct world *w;
 	bool *mainWorld;
 	bool *auxWorld;
 	int i, j;
+	int x = config->size_x;
+	int y = config->size_y;
 	
 	w = (struct world *)malloc(sizeof(struct world));
 	if (!w)
@@ -43,15 +48,37 @@ struct world * world_alloc(int x, int y)
 	w->size_y = y;
 	
 	//Inicialización del mundo
-	for(i = 0; i < x; i++)
-		for (j = 0; j < y; j++)
-			set_cell(w, 0, i, j, false);
 	 
-	set_cell(w, 0, 0, 1, true);
-	set_cell(w, 0, 1, 2, true);
-	set_cell(w, 0, 2, 0, true);
-	set_cell(w, 0, 2, 1, true);
-	set_cell(w, 0, 2, 2, true);
+	switch(config->init_mode) {
+	case CFG_DEFAULT:
+		for(i = 0; i < x; i++)
+			for (j = 0; j < y; j++)
+				set_cell(w, 0, i, j, false);
+		break;
+	case CFG_GLIDER:
+		for(i = 0; i < x; i++)
+			for (j = 0; j < y; j++)
+				set_cell(w, 0, i, j, false);
+		
+		set_cell(w, 0, 0, 1, true);
+		set_cell(w, 0, 1, 2, true);
+		set_cell(w, 0, 2, 0, true);
+		set_cell(w, 0, 2, 1, true);
+		set_cell(w, 0, 2, 2, true);
+		break;
+	case CFG_RANDOM:
+		srand(time(0));
+				
+		for(i = 0; i < x; i++)
+			for (j = 0; j < y; j++)
+				set_cell(w, 0, i, j, rand()%2==0? true : false);
+		break;
+	default:
+		world_free(w);
+		printf("\nInit mode is not valid.\n");
+		exit(EXIT_FAILURE);
+		break;
+	}
 	
 	return w;	
 }
