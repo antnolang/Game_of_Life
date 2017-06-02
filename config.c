@@ -37,7 +37,7 @@ int config_parse_argv(struct config *config, int argc, char *argv[])
 	config->size_x = 10;
 	config->size_y = 10;
 	config->init_mode = CFG_DEFAULT;
-	config->cfg_file = "\0";
+	config->cfg_file = "";
 	
 	while ((c = getopt_long(argc, argv, "hx:y:i:", long_options,
 				&option_index)) != -1) {
@@ -66,7 +66,6 @@ int config_parse_argv(struct config *config, int argc, char *argv[])
 	if (optind != argc) {
 		if (optind == argc - 1) {
 			config->cfg_file = argv[optind];
-			optind++;
 			if (!load_config(config)) {
 				check_options = false;
 			}
@@ -103,51 +102,41 @@ static enum cfg_init_mode str2init_mode(const char *opt)
 }
 
 static bool load_config(struct config *config)
-{
-	char file_name[LINE_LEN];
-	strcpy(file_name, config->cfg_file);
-	
-	FILE *f = fopen(file_name, "r");
+{	
+	FILE *f = fopen(config->cfg_file, "r");
 	if (!f) {
 		perror("Error opening config file");
-		exit(EXIT_FAILURE);
+		return false;
 	}
 	
-	char line1[LINE_LEN];
-	fgets(line1, LINE_LEN, f);
+	char buffer[LINE_LEN];
+	
+	fgets(buffer, LINE_LEN, f);
 	if (ferror(f)) {
 		perror("Error reading config file");
 		fclose(f);
 		return false;
 	}
-	if (strchr(line1, '\n') != NULL) {
-		*strchr(line1, '\n') = '\0';
-	}
-	config->size_x = strtol(line1, NULL, 0);
+	config->size_x = strtol(buffer, NULL, 0);
 	
-	char line2[LINE_LEN];
-	fgets(line2, LINE_LEN, f);
+	fgets(buffer, LINE_LEN, f);
 	if (ferror(f)) {
 		perror("Error reading config file");
 		fclose(f);
 		return false;
 	}
-	if (strchr(line2, '\n') != NULL) {
-		*strchr(line2, '\n') = '\0';
-	}
-	config->size_y = strtol(line2, NULL, 0);
+	config->size_y = strtol(buffer, NULL, 0);
 	
-	char line3[LINE_LEN];
-	fgets(line3, LINE_LEN, f);
+	fgets(buffer, LINE_LEN, f);
 	if (ferror(f)) {
 		perror("Error reading config file");
 		fclose(f);
 		return false;
 	}
-	if (strchr(line3, '\n') != NULL) {
-		*strchr(line3, '\n') = '\0';
+	if (strchr(buffer, '\n') != NULL) {
+		*strchr(buffer, '\n') = '\0';
 	}
-	config->init_mode = str2init_mode(line3);
+	config->init_mode = str2init_mode(buffer);
 	
 	fclose(f);
 	return true;
