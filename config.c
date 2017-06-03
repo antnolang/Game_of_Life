@@ -16,6 +16,7 @@ static const char *init_mode_str[] = {
 static const struct option long_options[] =
 {
 	{"help",   no_argument,       0, 'h'},
+	{"type",   required_argument, 0, 't'},
 	{"size_x", required_argument, 0, 'x'},
 	{"size_y", required_argument, 0, 'y'},
 	{"init",   required_argument, 0, 'i'},
@@ -34,16 +35,20 @@ int config_parse_argv(struct config *config, int argc, char *argv[])
 	
 	// Default values
 	config->show_help = false;
+	config->type = "toroidal";
 	config->size_x = 10;
 	config->size_y = 10;
 	config->init_mode = CFG_DEFAULT;
 	config->cfg_file = "";
 	
-	while ((c = getopt_long(argc, argv, "hx:y:i:", long_options,
+	while ((c = getopt_long(argc, argv, "t:hx:y:i:", long_options,
 				&option_index)) != -1) {
 		switch (c) {
 		case 'h':
 			config->show_help = true;
+			break;
+		case 't':
+			config->type = optarg;
 			break;
 		case 'x':
 			config->size_x = strtol(optarg, NULL, 0);
@@ -84,6 +89,8 @@ static bool check_config(const struct config *config)
 	if (config->show_help)
 		return true;
 
+	correct &= !strcmp(config->type, "toroidal")
+		|| !strcmp(config->type, "limited");
 	correct &= config->size_x > 0;
 	correct &= config->size_y > 0;
 	correct &= config->init_mode != CFG_NOT_DEF;
@@ -138,6 +145,17 @@ static bool load_config(struct config *config)
 	}
 	config->init_mode = str2init_mode(buffer);
 	
+	fgets(buffer, LINE_LEN, f);
+	if (ferror(f)) {
+		perror("Error reading config file");
+		fclose(f);
+		return false;
+	}
+	if (strchr(buffer, '\n') != NULL) {
+		*strchr(buffer, '\n') = '\0';
+	}
+	config->type = buffer;
+	
 	fclose(f);
 	return true;
 }
@@ -146,6 +164,7 @@ void config_print_usage(const char *arg0)
 {
 	printf("Usage: %s\n"
 		"\t[-h|--help]\n"
+		"\t[-t|--type <toroidal | limited>]"
 		"\t[-x|--size_x <num>]\n"
 		"\t[-y|--size_y <num>]\n"
 		"\t[-i|--init <init_mode>]\n"
@@ -165,6 +184,7 @@ void config_print(const struct config *config)
 {
 	printf("config {\n");
 	printf("\tshow help = %s\n", config->show_help ? "TRUE" : "FALSE");
+	printf("\ttype      = %s\n", config->type);
 	printf("\tsize_x    = %d\n", config->size_x);
 	printf("\tsize_y    = %d\n", config->size_y);
 	printf("\tinit_mode = %d(%s)\n",

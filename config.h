@@ -14,6 +14,7 @@ enum cfg_init_mode {
 
 struct config {
 	bool show_help;
+	char *type;
 	int size_x;
 	int size_y;
 	enum cfg_init_mode init_mode;

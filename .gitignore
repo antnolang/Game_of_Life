@@ -5,3 +5,6 @@ main.o
 gol.o
 config.txt
 config.o
+world.o
+world_limited.o
+world_toroidal.o

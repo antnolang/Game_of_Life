@@ -7,20 +7,26 @@ all: main
 valgrind: main_debug
 	valgrind --leak-check=full ./main_debug
 
-main_debug: main.o gol.o config.o
-	gcc -g main.o gol.o config.o -o main_debug
+main_debug: main.o world.o world_toroidal.o world_limited.o config.o
+	gcc -g main.o world.o world_toroidal.o world_limited.o config.o -o main_debug
 
-main: main.o gol.o config.o
-	gcc main.o gol.o config.o -o main
-	
-main.o: main.c gol.h
+main: main.o world.o world_toroidal.o world_limited.o config.o
+	gcc main.o world.o world_toroidal.o world_limited.o config.o -o main
+
+main.o: main.c world.h world_toroidal.h world_limited.h config.h
 	gcc -c main.c
-	
-gol.o: gol.c gol.h
-	gcc -c gol.c
-	
+
+world.o: world.c world.h world_int.h config.h
+	gcc -c world.c
+
+world_toroidal.o: world_toroidal.c world_toroidal.h world_int.h config.h
+	gcc -c world_toroidal.c
+
+world_limited.o: world_limited.c world_limited.h world_int.h config.h
+	gcc -c world_limited.c
+
 config.o: config.c config.h
 	gcc -c config.c
-	
+
 clean: 
 	rm *.o
