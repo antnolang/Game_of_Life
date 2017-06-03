@@ -8,3 +8,5 @@ información necesaria. Este documento debe tener la siguiente estructura:
 [size y]
 [init-mode]
 [tipo-mundo]
+
+Cada uno de los datos irá en una línea distinta.
