@@ -19,10 +19,10 @@ main.o: main.c world.h world_toroidal.h world_limited.h config.h
 world.o: world.c world.h world_int.h config.h
 	gcc -c world.c
 
-world_toroidal.o: world_toroidal.c world_toroidal.h world_int.h config.h
+world_toroidal.o: world_toroidal.c world_toroidal.h world_int.h config.h world.h
 	gcc -c world_toroidal.c
 
-world_limited.o: world_limited.c world_limited.h world_int.h config.h
+world_limited.o: world_limited.c world_limited.h world_int.h config.h world.h
 	gcc -c world_limited.c
 
 config.o: config.c config.h

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-struct config;
+#include "config.h"
 
 struct world {
 	bool *cells[2];
@@ -14,6 +14,6 @@ struct world {
 	void (*set_cell)(struct world *w, int buf, int x, int y, bool val);
 };
 
-void init_cells(const struct config *config, struct world *w);
+int world_init(const struct config *config, struct world *w);
 
 #endif

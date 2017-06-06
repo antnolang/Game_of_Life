@@ -3,8 +3,9 @@
 
 #include <stdbool.h>
 
+#include "config.h"
+
 struct world;
-struct config;
 
 struct world *world_alloc(const struct config *config);
 void world_free(struct world *w);

@@ -1,10 +1,5 @@
 main
 main_debug
 notes
-main.o
-gol.o
+*.o
 config.txt
-config.o
-world.o
-world_limited.o
-world_toroidal.o

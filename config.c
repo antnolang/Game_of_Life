@@ -39,7 +39,7 @@ int config_parse_argv(struct config *config, int argc, char *argv[])
 	config->size_x = 10;
 	config->size_y = 10;
 	config->init_mode = CFG_DEFAULT;
-	config->cfg_file = "";
+	config->cfg_file = NULL;
 	
 	while ((c = getopt_long(argc, argv, "t:hx:y:i:", long_options,
 				&option_index)) != -1) {
@@ -117,6 +117,7 @@ static bool load_config(struct config *config)
 	}
 	
 	char buffer[LINE_LEN];
+	char *eol;
 	
 	fgets(buffer, LINE_LEN, f);
 	if (ferror(f)) {
@@ -140,8 +141,9 @@ static bool load_config(struct config *config)
 		fclose(f);
 		return false;
 	}
-	if (strchr(buffer, '\n') != NULL) {
-		*strchr(buffer, '\n') = '\0';
+	eol = strchr(buffer, '\n');
+	if (eol != NULL) {
+		*eol = '\0';
 	}
 	config->init_mode = str2init_mode(buffer);
 	
@@ -151,8 +153,9 @@ static bool load_config(struct config *config)
 		fclose(f);
 		return false;
 	}
-	if (strchr(buffer, '\n') != NULL) {
-		*strchr(buffer, '\n') = '\0';
+	eol = strchr(buffer, '\n');
+	if (eol != NULL) {
+		*eol = '\0';
 	}
 	config->type = buffer;
 	

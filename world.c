@@ -4,42 +4,20 @@
 
 #include "world.h"
 #include "world_int.h"
-#include "config.h"
 
 static int count_neighbors(const struct world *w, int coordx, int coordy);
 
 struct world *world_alloc(const struct config *config)
 {
-	struct world *w;
-	bool *mainWorld;
-	bool *auxWorld;
-	int x = config->size_x;
-	int y = config->size_y;
-	
-	w = (struct world *)malloc(sizeof(struct world));
+	struct world *w = (struct world *)malloc(sizeof(struct world));
 	if (!w)
 		return NULL;
 	
-	mainWorld = (bool *)malloc(x*y*sizeof(int));
-	if (!mainWorld) {
-		free(w);
+	int check_init = world_init(config, w);
+	if (check_init == -1 || check_init == -2)
 		return NULL;
-	}
-		
-	auxWorld = (bool *)malloc(x*y*sizeof(int));
-	if (!mainWorld) {
-		free(mainWorld);
-		free(w);
-		return NULL;
-	}
 	
-	w->cells[0] = mainWorld;
-	w->cells[1] = auxWorld;
-	w->size_x = x;
-	w->size_y = y;
-	init_cells(config, w);
-	
-	return w;	
+	return w;
 }
 
 void world_free(struct world *w) 
@@ -103,11 +81,31 @@ static int count_neighbors(const struct world *w, int coordx, int coordy)
 	return counter;
 }
 
-void init_cells(const struct config *config, struct world *w)
+int world_init(const struct config *config, struct world *w)
 {
+	bool *mainWorld;
+	bool *auxWorld;
 	int i, j;
 	int x = config->size_x;
 	int y = config->size_y;
+	
+	mainWorld = (bool *)malloc(x*y*sizeof(int));
+	if (!mainWorld) {
+		free(w);
+		return -1;
+	}
+		
+	auxWorld = (bool *)malloc(x*y*sizeof(int));
+	if (!mainWorld) {
+		free(mainWorld);
+		free(w);
+		return -2;
+	}
+	
+	w->cells[0] = mainWorld;
+	w->cells[1] = auxWorld;
+	w->size_x = x;
+	w->size_y = y;
 	 
 	switch(config->init_mode) {
 	case CFG_DEFAULT:
@@ -140,4 +138,6 @@ void init_cells(const struct config *config, struct world *w)
 		exit(EXIT_FAILURE);
 		break;
 	}
+	
+	return EXIT_SUCCESS;
 }
