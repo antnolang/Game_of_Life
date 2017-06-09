@@ -9,7 +9,6 @@
 
 int main(int argc, char *argv[])
 {
-	printf("AQUI LLEGA");
 	int i = 0;
 	struct world *w;
 	struct config config;

@@ -6,6 +6,9 @@
 #include "world_int.h"
 
 static int count_neighbors(const struct world *w, int coordx, int coordy);
+static void init_glider(int x, int y, struct world *w);
+static void init_default(int x, int y, struct world *w);
+static void init_random(int x, int y, struct world *w);
 
 struct world *world_alloc(const struct config *config)
 {
@@ -14,8 +17,10 @@ struct world *world_alloc(const struct config *config)
 		return NULL;
 	
 	int check_init = world_init(config, w);
-	if (check_init == -1 || check_init == -2)
+	if (check_init == -1 || check_init == -2 || check_init == -3) {
+		world_free(w);
 		return NULL;
+	}
 	
 	return w;
 }
@@ -85,7 +90,6 @@ int world_init(const struct config *config, struct world *w)
 {
 	bool *mainWorld;
 	bool *auxWorld;
-	int i, j;
 	int x = config->size_x;
 	int y = config->size_y;
 	
@@ -109,35 +113,52 @@ int world_init(const struct config *config, struct world *w)
 	 
 	switch(config->init_mode) {
 	case CFG_DEFAULT:
-		for(i = 0; i < x; i++)
-			for (j = 0; j < y; j++)
-				w->set_cell(w, 0, i, j, false);
+		init_default(x, y, w);
 		break;
 	case CFG_GLIDER:
-		for(i = 0; i < x; i++)
-			for (j = 0; j < y; j++)
-				w->set_cell(w, 0, i, j, false);
-		
-		w->set_cell(w, 0, 0, 1, true);
-		w->set_cell(w, 0, 1, 2, true);
-		w->set_cell(w, 0, 2, 0, true);
-		w->set_cell(w, 0, 2, 1, true);
-		w->set_cell(w, 0, 2, 2, true);
+		init_glider(x, y, w);
 		break;
 	case CFG_RANDOM:
-		srand(time(0));
-				
-		for(i = 0; i < x; i++)
-			for (j = 0; j < y; j++)
-				w->set_cell(w, 0, i, 
-					    j, rand()%2==0 ? true : false);
+		init_random(x, y, w);
 		break;
 	default:
 		world_free(w);
 		printf("\nInit mode is not valid.\n");
-		exit(EXIT_FAILURE);
+		return -3;
 		break;
 	}
 	
 	return EXIT_SUCCESS;
+}
+
+static void init_glider(int x, int y, struct world *w)
+{
+	int i, j;
+	for(i = 0; i < x; i++)
+		for (j = 0; j < y; j++)
+			w->set_cell(w, 0, i, j, false);
+		
+	w->set_cell(w, 0, 0, 1, true);
+	w->set_cell(w, 0, 1, 2, true);
+	w->set_cell(w, 0, 2, 0, true);
+	w->set_cell(w, 0, 2, 1, true);
+	w->set_cell(w, 0, 2, 2, true);
+}
+
+static void init_default(int x, int y, struct world *w)
+{
+	int i, j;
+	for(i = 0; i < x; i++)
+		for (j = 0; j < y; j++)
+			w->set_cell(w, 0, i, j, false);
+}
+
+static void init_random(int x, int y, struct world *w)
+{
+	int i, j;
+	srand(time(0));
+			
+	for(i = 0; i < x; i++)
+		for (j = 0; j < y; j++)
+			w->set_cell(w, 0, i, j, rand()%2==0 ? true : false);
 }
