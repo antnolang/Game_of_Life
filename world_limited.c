@@ -4,13 +4,15 @@
 #include "world_int.h"
 #include "world_limited.h"
 
-struct world_limited 
-{
+#define INDEX_OUT_OF_LIMITS x < 0 || x > w->size_y-1 || y < 0 || y > w->size_y-1
+
+struct world_limited {
 	struct world super;
 };
 
-static void limited_set_cell(struct world *w, int buf, int x, int y, bool val);
-static bool limited_get_cell(const struct world *w, int x, int y);
+static bool fix_coords(const struct world *w, int *x, int *y);
+static void set_cell(struct world *w, int x, int y, bool val);
+static bool get_cell(const struct world *w, int x, int y);
 
 struct world_limited *world_limited_alloc(const struct config *config)
 {
@@ -19,11 +21,14 @@ struct world_limited *world_limited_alloc(const struct config *config)
 	if (!wl)
 		return NULL;
 		
-	wl->super.get_cell = limited_get_cell;
-	wl->super.set_cell = limited_set_cell;
+	wl->super.get_cell = get_cell;
+	wl->super.set_cell = set_cell;
+	wl->super.fix_coords = fix_coords;
 	int check_init = world_init(config, (struct world *)wl);
-	if (check_init == -1 || check_init == -2)
+	if (-5 < check_init && check_init < 0) {
+		free(wl);
 		return NULL;
+	}
 	
 	return wl;
 }
@@ -33,19 +38,24 @@ void world_limited_free(struct world_limited *wl)
 	world_free((struct world *)wl);
 }
 
-static bool limited_get_cell(const struct world *w, int x, int y)
+static bool get_cell(const struct world *w, int x, int y)
 {		
-	if (x < 0 || x > w->size_x - 1 || y < 0 || y > w->size_y - 1)
+	if (INDEX_OUT_OF_LIMITS)
 		return false;
 	
 	int offset = w->size_y*x + y;
-	return *(w->cells[0] + offset);
+	return *(w->cells + offset);
 }
 
-static void limited_set_cell(struct world *w, int buf, int x, int y, bool val)
+static void set_cell(struct world *w, int x, int y, bool val)
 {
-	if (!(x < 0 || x > w->size_x - 1 || y < 0 || y > w->size_y - 1)) {
+	if (!(INDEX_OUT_OF_LIMITS)) {
 		int offset = w->size_y*x + y;
-		*(w->cells[buf] + offset) = val;
+		*(w->cells + offset) = val;
 	}
+}
+
+static bool fix_coords(const struct world *w, int *x, int *y)
+{
+	return !(*x < 0 || *x > w->size_y - 1 || *y < 0 || *y > w->size_y-1);
 }
